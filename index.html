@@ -147,6 +147,44 @@
         <a href="login.html" class="btn btn-login">Login</a>
         <a href="signup.html" class="btn btn-signup">Sign Up</a>
     </div>
+<script type="module">
+    // 1. Import Firebase v9 Modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
+    // 2. Your Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyCQ1JiFwqwS3-mrQ_-DDpdxFa4b7TasBlw",
+        authDomain: "drms-workos.firebaseapp.com",
+        projectId: "drms-workos",
+        storageBucket: "drms-workos.firebasestorage.app",
+        messagingSenderId: "96515490039",
+        appId: "1:96515490039:web:3621d81b99de2174dd13f2"
+    };
+
+    // 3. Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // 4. 🔥 THE REDIRECT LOGIC (Your "StreamBuilder" equivalent)
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("User is logged in, redirecting to dashboard...");
+            // Use replace so they can't click 'back' to return to the start screen
+            window.location.replace("home_screen.html");
+        } else {
+            console.log("No user session found. Staying on start page.");
+        }
+    });
+
+    // 5. Register Service Worker (Existing PWA logic)
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js').then(reg => {
+                console.log('SW Registered');
+            }).catch(err => console.log('SW Failed', err));
+        });
+    }
+</script>
 </body>
 </html>
