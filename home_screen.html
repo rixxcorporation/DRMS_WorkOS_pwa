@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#00ACC1" id="theme-meta">
+    <title>DRMS workOS - Dashboard</title>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        :root {
+            --bg-light: #F4F7FB;
+            --header-color: #00ACC1;
+            --text-dark: #1E293B;
+            --text-muted: #64748B;
+            /* Tab Colors */
+            --tab-0: #26C6DA; --tab-1: #647DEE; --tab-2: #FF7043; --tab-3: #26A69A; --tab-4: #546E7A;
+        }
+
+        body, html { height: 100vh; width: 100vw; background-color: var(--bg-light); overflow-x: hidden; }
+
+        /* --- TABS SYSTEM --- */
+        .page-tab { display: none; padding-bottom: 110px; animation: fadeIn 0.3s ease; }
+        .page-tab.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- HEADER --- */
+        .hero-header {
+            background: linear-gradient(135deg, rgba(0, 172, 193, 0.6), var(--header-color));
+            padding: 50px 25px 25px 25px;
+            border-bottom-left-radius: 35px; border-bottom-right-radius: 35px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: white; transition: background 0.5s;
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .rixx-badge { background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .icon-group { display: flex; gap: 8px; }
+        .glass-icon { width: 40px; height: 40px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; position: relative; }
+        .badge-count { position: absolute; top: -2px; right: -2px; background: #EF4444; color: white; font-size: 9px; font-weight: bold; padding: 3px 6px; border-radius: 10px; border: 1.5px solid var(--header-color); display: none; }
+        
+        .header-bottom { margin-top: 35px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .greeting { font-size: 28px; font-weight: 900; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .role-tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: bold; letter-spacing: 1px; }
+
+        /* --- SECTIONS --- */
+        .section-title { font-size: 18px; font-weight: 800; color: var(--text-dark); margin: 25px 25px 15px 25px; }
+
+        /* Horizontal Scroll */
+        .horizontal-scroll { display: flex; overflow-x: auto; padding: 0 20px; gap: 15px; scroll-snap-type: x mandatory; }
+        .horizontal-scroll::-webkit-scrollbar { display: none; }
+        .metric-card { min-width: 140px; background: white; padding: 15px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); border: 1px solid #E2E8F0; scroll-snap-align: start; }
+        .metric-icon-box { padding: 6px; border-radius: 50%; display: inline-flex; margin-bottom: 15px; }
+        
+        /* Quick Grid */
+        .quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding: 0 25px; }
+        .grid-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .grid-icon { width: 100%; aspect-ratio: 1; border-radius: 18px; display: flex; justify-content: center; align-items: center; margin-bottom: 8px; }
+        .grid-item span { font-size: 11px; font-weight: 700; color: #475569; text-align: center; }
+
+        /* Lists */
+        .list-container { padding: 0 25px; }
+        .list-item { background: white; padding: 16px; border-radius: 15px; border: 1px solid #E2E8F0; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; }
+        .list-text-group { flex: 1; overflow: hidden; }
+        .list-title { font-weight: bold; color: var(--text-dark); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .list-sub { color: var(--text-muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }
+
+        /* --- BOTTOM NAV --- */
+        .bottom-nav {
+            position: fixed; bottom: 25px; left: 20px; right: 20px; height: 70px;
+            background: white; border-radius: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+            display: flex; justify-content: space-evenly; align-items: center; z-index: 100;
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; width: 60px; cursor: pointer; color: #94A3B8; transition: 0.2s; }
+        .nav-item span.text { font-size: 10px; font-weight: 500; margin-top: 4px; transition: 0.2s; }
+        .nav-item .material-icons-round { font-size: 24px; transition: 0.2s; }
+        
+        .nav-item.active-0 { color: var(--tab-0); }
+        .nav-item.active-1 { color: var(--tab-1); }
+        .nav-item.active-2 { color: var(--tab-2); }
+        .nav-item.active-3 { color: var(--tab-3); }
+        .nav-item.active-4 { color: var(--tab-4); }
+        .nav-item[class*="active-"] span.text { font-weight: bold; }
+        .nav-item[class*="active-"] .material-icons-round { font-size: 28px; }
+
+        /* --- NOTIFICATION DRAWER --- */
+        .drawer-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 999; display: none; opacity: 0; transition: opacity 0.3s; }
+        .drawer { position: fixed; top: 0; right: -320px; bottom: 0; width: 320px; background: white; z-index: 1000; border-top-left-radius: 30px; border-bottom-left-radius: 30px; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: -5px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        .drawer.open { right: 0; }
+        .drawer-overlay.open { display: block; opacity: 1; }
+
+    </style>
+</head>
+<body>
+
+    <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
+    <div class="drawer" id="notification-drawer">
+        <div style="padding: 20px; display: flex; align-items: center; gap: 15px; margin-top: 10px;">
+            <div style="background: rgba(33, 150, 243, 0.1); padding: 10px; border-radius: 50%;"><span class="material-icons-round" style="color: #2196F3;">notifications_active</span></div>
+            <h2 style="font-size: 18px; color: var(--text-dark);">Notifications</h2>
+        </div>
+        <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 0;">
+        <div id="drawer-list" style="padding: 20px; overflow-y: auto; flex: 1;">
+            <p style="color: gray; text-align: center; margin-top: 20px;">Loading...</p>
+        </div>
+    </div>
+
+
+    <div id="tab-0" class="page-tab active">
+        <div class="hero-header" id="hero-header">
+            <div class="header-top">
+                <div class="rixx-badge" onclick="window.location.href='rixx.html'">
+                    <img src="asset/logo.png" width="18" height="18" alt="RIXX" onerror="this.style.display='none'">
+                    <span>RIXX</span>
+                </div>
+                <div class="icon-group">
+                    <div class="glass-icon" onclick="alert('Color picker placeholder')"><span class="material-icons-outlined">palette</span></div>
+                    <div class="glass-icon" onclick="window.location.href='chat.html'"><span class="material-icons-outlined">chat_bubble_outline</span></div>
+                    <div class="glass-icon" onclick="window.location.href='profile.html'"><span class="material-icons-outlined">person_outline</span></div>
+                    <div class="glass-icon" onclick="toggleDrawer()">
+                        <span class="material-icons-round">notifications</span>
+                        <div class="badge-count" id="nav-badge">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-bottom">
+                <div>
+                    <div class="greeting" id="user-name">Hi, Loading...</div>
+                    <div class="role-tag" id="user-role-tag" style="background: rgba(13,22,67,0.2); border: 1px solid rgba(13,22,67,0.5); color: #0D1643;">
+                        <span class="material-icons-round" style="font-size: 12px;">verified_user</span>
+                        <span id="user-role-text">STAFF</span>
+                    </div>
+                </div>
+                <div class="glass-icon" id="admin-icon" style="display: none; border: 1px solid rgba(255,255,255,0.3);" onclick="window.location.href='admin_dashboard.html'">
+                    <span class="material-icons-round">admin_panel_settings</span>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">At a Glance</h2>
+        <div class="horizontal-scroll">
+            <div class="metric-card">
+                <div class="metric-icon-box" style="background: rgba(255,152,0,0.1);"><span class="material-icons-round" style="color: orange; font-size: 18px;">assignment</span></div>
+                <h3 style="font-size: 18px; color: var(--text-dark);" id="metric-tasks">0</h3>
+                <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px;">Pending Tasks</p>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon-box" style="background: rgba(76,175,80,0.1);"><span class="material-icons-round" style="color: #4CAF50; font-size: 18px;">check_circle</span></div>
+                <h3 style="font-size: 18px; color: var(--text-dark);" id="metric-attendance">Pending</h3>
+                <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px;">Today's Status</p>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon-box" style="background: rgba(33,150,243,0.1);"><span class="material-icons-round" style="color: #2196F3; font-size: 18px;">groups</span></div>
+                <h3 style="font-size: 18px; color: var(--text-dark);" id="metric-staff">0</h3>
+                <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px;">Total Staff</p>
+            </div>
+        </div>
+
+        <h2 class="section-title">Quick Access</h2>
+        <div class="quick-grid">
+            <div class="grid-item" onclick="window.location.href='chat.html'">
+                <div class="grid-icon" style="background: #E3F2FD;"><span class="material-icons-round" style="color: #2196F3;">chat_bubble</span></div>
+                <span>Messages</span>
+            </div>
+            <div class="grid-item" onclick="switchTab(2)">
+                <div class="grid-icon" style="background: #FFF3E0;"><span class="material-icons-round" style="color: #FF9800;">assignment</span></div>
+                <span>Tasks</span>
+            </div>
+            <div class="grid-item" onclick="switchTab(1)">
+                <div class="grid-icon" style="background: #E0F2F1;"><span class="material-icons-round" style="color: #009688;">how_to_reg</span></div>
+                <span>Staff Info</span>
+            </div>
+            <div class="grid-item" onclick="switchTab(3)">
+                <div class="grid-icon" style="background: #E8F5E9;"><span class="material-icons-round" style="color: #4CAF50;">account_balance_wallet</span></div>
+                <span>Finances</span>
+            </div>
+            <div class="grid-item" id="grid-admin" style="display: none;" onclick="window.location.href='admin_dashboard.html'">
+                <div class="grid-icon" style="background: #F3E5F5;"><span class="material-icons-round" style="color: #9C27B0;">admin_panel_settings</span></div>
+                <span>Admin</span>
+            </div>
+            <div class="grid-item" onclick="window.location.href='profile.html'">
+                <div class="grid-icon" style="background: #E8EAF6;"><span class="material-icons-round" style="color: #3F51B5;">person</span></div>
+                <span>Profile</span>
+            </div>
+            <div class="grid-item" onclick="switchTab(4)">
+                <div class="grid-icon" style="background: #EEEEEE;"><span class="material-icons-round" style="color: #616161;">settings</span></div>
+                <span>Settings</span>
+            </div>
+        </div>
+
+        <h2 class="section-title">My Priority Tasks</h2>
+        <div class="list-container" id="mini-task-list">
+            <p style="font-size: 13px; color: gray;">Loading tasks...</p>
+        </div>
+
+        <h2 class="section-title">Recent Alerts</h2>
+        <div class="list-container" id="mini-alert-list">
+            <p style="font-size: 13px; color: gray;">Loading alerts...</p>
+        </div>
+    </div>
+
+    <div id="tab-1" class="page-tab"><h2 style="padding: 60px 20px; text-align: center; color: var(--text-dark);">Staff Info Page</h2></div>
+    <div id="tab-2" class="page-tab"><h2 style="padding: 60px 20px; text-align: center; color: var(--text-dark);">Tasks Page</h2></div>
+    <div id="tab-3" class="page-tab"><h2 style="padding: 60px 20px; text-align: center; color: var(--text-dark);">Finances Page</h2></div>
+    <div id="tab-4" class="page-tab"><h2 style="padding: 60px 20px; text-align: center; color: var(--text-dark);">Settings Page</h2></div>
+
+
+    <nav class="bottom-nav">
+        <div class="nav-item active-0" id="nav-btn-0" onclick="switchTab(0)">
+            <span class="material-icons-round">home</span><span class="text">Home</span>
+        </div>
+        <div class="nav-item" id="nav-btn-1" onclick="switchTab(1)">
+            <span class="material-icons-round">groups</span><span class="text">Staff</span>
+        </div>
+        <div class="nav-item" id="nav-btn-2" onclick="switchTab(2)">
+            <span class="material-icons-round">assignment</span><span class="text">Tasks</span>
+        </div>
+        <div class="nav-item" id="nav-btn-3" onclick="switchTab(3)">
+            <span class="material-icons-round">bar_chart</span><span class="text">Finances</span>
+        </div>
+        <div class="nav-item" id="nav-btn-4" onclick="switchTab(4)">
+            <span class="material-icons-round">settings</span><span class="text">Setting</span>
+        </div>
+    </nav>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, query, where, orderBy, limit, onSnapshot, doc, getDoc, deleteDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCQ1JiFwqwS3-mrQ_-DDpdxFa4b7TasBlw",
+            authDomain: "drms-workos.firebaseapp.com",
+            projectId: "drms-workos",
+            storageBucket: "drms-workos.firebasestorage.app",
+            messagingSenderId: "96515490039",
+            appId: "1:96515490039:web:3621d81b99de2174dd13f2"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUserUid = null;
+
+        // --- TAB NAVIGATION LOGIC ---
+        window.switchTab = function(index) {
+            // Hide all tabs & remove active classes
+            document.querySelectorAll('.page-tab').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.className = 'nav-item'; // Reset to base class
+            });
+
+            // Show selected tab & animate nav
+            document.getElementById(`tab-${index}`).classList.add('active');
+            document.getElementById(`nav-btn-${index}`).classList.add(`active-${index}`);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // --- DRAWER LOGIC ---
+        window.toggleDrawer = function() {
+            document.getElementById('notification-drawer').classList.toggle('open');
+            document.getElementById('drawer-overlay').classList.toggle('open');
+        };
+
+        // Delete Notification
+        window.deleteNotif = async function(docId) {
+            try { await deleteDoc(doc(db, "notifications", docId)); } 
+            catch (e) { console.error("Error deleting:", e); }
+        };
+
+        // Mark Notification as Read
+        window.markRead = async function(docId, element) {
+            if(!currentUserUid) return;
+            try {
+                await updateDoc(doc(db, "notifications", docId), { readBy: arrayUnion(currentUserUid) });
+                element.style.backgroundColor = "transparent";
+                element.querySelector('.unread-dot').style.display = "none";
+                element.querySelector('.list-title').style.fontWeight = "600";
+            } catch(e) { console.error(e); }
+        };
+
+        // --- AUTH & DATA FETCHING ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUserUid = user.uid;
+                
+                // Fetch User Details
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    const role = (data.role || "STAFF").toUpperCase();
+                    
+                    document.getElementById('user-name').innerText = `Hi, ${data.name || 'User'}`;
+                    document.getElementById('user-role-text').innerText = role;
+
+                    // Admin UI Checks
+                    if (role === 'ADMIN') {
+                        const tag = document.getElementById('user-role-tag');
+                        tag.style.background = 'rgba(255, 213, 79, 0.2)';
+                        tag.style.borderColor = 'rgba(255, 213, 79, 0.5)';
+                        tag.style.color = '#FFD54F';
+                        tag.querySelector('.material-icons-round').style.color = '#FFD54F';
+
+                        document.getElementById('admin-icon').style.display = 'flex';
+                        document.getElementById('grid-admin').style.display = 'flex';
+                    }
+                }
+
+                startRealtimeListeners(user.uid);
+            } else {
+                window.location.href = "login.html"; // Redirect if not logged in
+            }
+        });
+
+        function startRealtimeListeners(uid) {
+            // 1. Pending Tasks Count & Mini List
+            const qTasks = query(collection(db, "tasks_dir", uid, "tasks"), where("status", "==", "pending"));
+            onSnapshot(qTasks, (snapshot) => {
+                document.getElementById('metric-tasks').innerText = snapshot.size;
+                
+                const miniList = document.getElementById('mini-task-list');
+                if (snapshot.empty) {
+                    miniList.innerHTML = `<div class="list-item"><span class="material-icons-round" style="color: #4CAF50;">check_circle</span> <span style="font-size: 13px; font-weight: bold; color: gray;">All caught up on tasks!</span></div>`;
+                } else {
+                    miniList.innerHTML = '';
+                    let count = 0;
+                    snapshot.forEach((doc) => {
+                        if (count >= 2) return;
+                        miniList.innerHTML += `
+                            <div class="list-item">
+                                <div style="width: 12px; height: 12px; background: orange; border-radius: 50%; border: 3px solid rgba(255,165,0,0.3);"></div>
+                                <span class="list-title" style="flex: 1;">${doc.data().title || 'Task'}</span>
+                                <span class="material-icons-round" style="font-size: 14px; color: gray;">arrow_forward_ios</span>
+                            </div>
+                        `;
+                        count++;
+                    });
+                }
+            });
+
+            // 2. Staff Count
+            onSnapshot(collection(db, "users"), (snapshot) => {
+                document.getElementById('metric-staff').innerText = snapshot.size;
+            });
+
+            // 3. Notifications & Badges
+            const qNotif = query(collection(db, "notifications"), orderBy("timestamp", "desc"));
+            onSnapshot(qNotif, (snapshot) => {
+                let unreadCount = 0;
+                const drawerList = document.getElementById('drawer-list');
+                const miniAlerts = document.getElementById('mini-alert-list');
+                
+                drawerList.innerHTML = '';
+                miniAlerts.innerHTML = '';
+
+                if (snapshot.empty) {
+                    drawerList.innerHTML = '<p style="text-align:center; color:gray;">No new notifications</p>';
+                    miniAlerts.innerHTML = '<p style="font-size: 13px; color: gray;">No recent alerts.</p>';
+                    return;
+                }
+
+                let alertCount = 0;
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const docId = docSnap.id;
+                    const isRead = (data.readBy || []).includes(uid);
+                    
+                    if (!isRead) unreadCount++;
+
+                    // Render Drawer Item
+                    drawerList.innerHTML += `
+                        <div onclick="markRead('${docId}', this)" style="background: ${isRead ? 'transparent' : 'rgba(33, 150, 243, 0.04)'}; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; gap: 15px; align-items: flex-start; cursor: pointer; transition: 0.3s;">
+                            <div class="unread-dot" style="margin-top: 6px; width: 8px; height: 8px; background: #2196F3; border-radius: 50%; display: ${isRead ? 'none' : 'block'};"></div>
+                            <div style="flex: 1;">
+                                <div class="list-title" style="font-weight: ${isRead ? '600' : '800'};">${data.title || 'Alert'}</div>
+                                <div class="list-sub" style="white-space: normal;">${data.body || ''}</div>
+                            </div>
+                            <span class="material-icons-round" style="font-size: 20px; color: gray; cursor: pointer;" onclick="event.stopPropagation(); deleteNotif('${docId}');">delete_outline</span>
+                        </div>
+                    `;
+
+                    // Render Mini Alerts (Limit 2)
+                    if (alertCount < 2) {
+                        miniAlerts.innerHTML += `
+                            <div class="list-item" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                                <span style="font-weight: 800; font-size: 13px; color: var(--text-dark);">${data.title || 'Alert'}</span>
+                                <span style="font-size: 12px; color: var(--text-muted); width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${data.body || ''}</span>
+                            </div>
+                        `;
+                        alertCount++;
+                    }
+                });
+
+                // Update Badge
+                const badge = document.getElementById('nav-badge');
+                if (unreadCount > 0) {
+                    badge.style.display = 'block';
+                    badge.innerText = unreadCount > 9 ? '9+' : unreadCount;
+                } else {
+                    badge.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

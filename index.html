@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#C3B6F2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>DRMS workOS</title>
+
+    <link rel="manifest" href="manifest.json">
+
+    <style>
+        /* Base Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent; /* Removes blue tap highlight on mobile */
+        }
+
+        body, html {
+            height: 100vh;
+            width: 100vw;
+            background-color: #F2F2F2;
+            overflow: hidden; /* Prevents scroll bounce on mobile */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 🔵 TOP SECTION (Gradient) */
+        .top-section {
+            height: 55vh;
+            width: 100%;
+            background: linear-gradient(135deg, #C3B6F2, #8EC5FC);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .logo {
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+        }
+
+        /* 🌊 WAVE SHAPE (Replicating CustomPainter) */
+        .wave-container {
+            width: 100%;
+            line-height: 0;
+            background: #F2F2F2;
+            margin-top: -1px; /* Prevents tiny pixel gaps */
+        }
+
+        .wave-svg {
+            display: block;
+            width: 100%;
+            height: 60px;
+        }
+
+        /* ⚪ BOTTOM SECTION */
+        .bottom-section {
+            flex: 1; /* Takes up remaining space */
+            background-color: #F2F2F2;
+            padding: 0 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 40px;
+        }
+
+        /* Reusable Button Constraints */
+        .btn {
+            width: 100%;
+            max-width: 400px; /* Prevents buttons from getting too wide on tablets/desktops */
+            height: 55px;
+            border-radius: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.1s ease, opacity 0.2s ease;
+            border: none;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        /* 🔥 LOGIN BUTTON */
+        .btn-login {
+            background: linear-gradient(to right, #6A7FDB, #7F53AC);
+            color: white;
+            box-shadow: 0 4px 10px rgba(127, 83, 172, 0.3);
+            margin-bottom: 20px;
+        }
+
+        /* 🔥 SIGN UP BUTTON */
+        .btn-signup {
+            background-color: white;
+            color: #7F53AC;
+            border: 2px solid #7F53AC;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-section">
+        <img src="asset/logo.png" alt="DRMS Logo" class="logo" onerror="this.style.display='none'">
+        
+        <h1>DRMS workOS</h1>
+        <p class="subtitle">Manage your Workplace efficiently</p>
+    </div>
+
+    <div class="wave-container">
+        <svg class="wave-svg" viewBox="0 0 1440 120" preserveAspectRatio="none">
+            <path fill="url(#gradient)" d="M0,0 C360,120 720,72 1080,0 L1440,72 L1440,0 Z"></path>
+            <path fill="#F2F2F2" d="M0,0 C360,120 720,72 1080,0 L1440,72 L1440,120 L0,120 Z"></path>
+            <defs>
+                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#C3B6F2" />
+                    <stop offset="100%" stop-color="#8EC5FC" />
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
+
+    <div class="bottom-section">
+        <a href="login.html" class="btn btn-login">Login</a>
+        <a href="signup.html" class="btn btn-signup">Sign Up</a>
+    </div>
+
+</body>
+</html>

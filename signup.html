@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#C3B6F2">
+    <title>DRMS workOS - Sign Up</title>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body, html { min-height: 100vh; background-color: #F2F2F2; display: flex; flex-direction: column; }
+
+        /* 🔵 TOP SECTION */
+        .top-section {
+            background: linear-gradient(135deg, #C3B6F2, #8EC5FC);
+            padding: 40px 30px 20px 30px;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 65vh; /* Taller for signup */
+        }
+
+        .header-row { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .back-btn { color: white; text-decoration: none; display: flex; align-items: center; }
+        .verify-later-btn { color: white; font-weight: bold; background: none; border: none; font-size: 14px; cursor: pointer; display: none; }
+        
+        .title { color: white; font-size: 28px; font-weight: bold; text-align: center; width: 100%; margin-bottom: 25px; }
+
+        /* Inputs */
+        .input-group {
+            width: 100%; max-width: 400px; background: rgba(255, 255, 255, 0.9); border-radius: 30px;
+            display: flex; align-items: center; padding: 0 15px; margin-bottom: 15px; height: 50px;
+        }
+        .input-group .material-icons-outlined { color: gray; margin-right: 10px; }
+        .input-group input { border: none; background: transparent; outline: none; flex: 1; font-size: 16px; }
+
+        /* Buttons */
+        .btn { width: 250px; height: 45px; border: none; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; margin: 10px auto; transition: transform 0.1s; }
+        .btn:active { transform: scale(0.97); }
+        
+        .btn-primary { background: linear-gradient(to right, #6A7FDB, #7F53AC); color: white; }
+        .btn-white { background: white; color: #7F53AC; width: 200px; }
+        .btn-outline { background: transparent; border: 1px solid #6C63FF; color: #6C63FF; width: 100%; max-width: 300px; height: 45px; border-radius: 30px; }
+        .btn-text { background: transparent; border: none; color: #7F53AC; font-weight: bold; cursor: pointer; font-size: 16px; padding: 10px; }
+
+        /* 🌊 WAVE */
+        .wave-container { width: 100%; line-height: 0; background: #F2F2F2; margin-top: -1px; }
+        .wave-svg { width: 100%; height: 60px; display: block; }
+
+        /* ⚪ BOTTOM SECTION */
+        .bottom-section { flex: 1; background: #F2F2F2; padding: 10px 30px 40px 30px; display: flex; flex-direction: column; align-items: center; }
+
+        .divider-row { display: flex; align-items: center; width: 100%; max-width: 400px; color: gray; font-size: 14px; margin-bottom: 25px; }
+        .divider-row::before, .divider-row::after { content: ""; flex: 1; border-bottom: 1px solid #ddd; }
+        .divider-row span { padding: 0 10px; }
+
+        .btn-google {
+            width: 100%; max-width: 400px; height: 50px; background: white; border: 1px solid #ddd; border-radius: 25px;
+            display: flex; justify-content: center; align-items: center; font-size: 15px; font-weight: 600; color: #333; cursor: pointer; margin-bottom: 40px;
+        }
+        .btn-google img { height: 24px; margin-right: 12px; }
+
+        .login-text { color: gray; font-size: 14px; }
+        .login-text a { color: #6C63FF; font-weight: bold; text-decoration: none; }
+
+        /* Messaging */
+        #msg-box { padding: 10px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; margin-bottom: 15px; display: none; text-align: center; width: 100%; max-width: 400px; }
+        .msg-error { background: rgba(255, 255, 255, 0.9); color: #D32F2F; }
+        .msg-success { background: #E8F5E9; color: #2E7D32; }
+
+        /* State Views */
+        #verify-view-top, #verify-view-bottom { display: none; flex-direction: column; align-items: center; width: 100%; text-align: center; }
+        .verify-icon { font-size: 80px; color: white; margin-bottom: 20px; }
+        .verify-text { color: rgba(255, 255, 255, 0.8); font-size: 16px; margin-bottom: 20px; max-width: 300px; line-height: 1.5; }
+
+        /* Spinner */
+        .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid white; border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner.dark { border: 2px solid rgba(108, 99, 255, 0.2); border-top: 2px solid #6C63FF; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="top-section">
+        <div class="header-row">
+            <a href="login.html" class="back-btn"><span class="material-icons">arrow_back_ios_new</span></a>
+            <button class="verify-later-btn" id="verifyLaterBtn">Verify Later</button>
+        </div>
+
+        <div id="msg-box"></div>
+
+        <div id="signup-view-top" style="width: 100%; max-width: 400px; display: flex; flex-direction: column; align-items: center;">
+            <h2 class="title">Sign Up</h2>
+
+            <div class="input-group">
+                <span class="material-icons-outlined">person_outline</span>
+                <input type="text" id="name" placeholder="Name">
+            </div>
+            <div class="input-group">
+                <span class="material-icons-outlined">email</span>
+                <input type="email" id="email" placeholder="Email">
+            </div>
+            <div class="input-group">
+                <span class="material-icons-outlined">lock_outline</span>
+                <input type="password" id="password" placeholder="Password">
+            </div>
+            <div class="input-group">
+                <span class="material-icons-outlined">lock_outline</span>
+                <input type="password" id="confirm" placeholder="Confirm Password">
+            </div>
+
+            <button class="btn btn-primary" id="signupBtn" style="margin-top: 20px;">Create an account</button>
+        </div>
+
+        <div id="verify-view-top">
+            <span class="material-icons-outlined verify-icon">mark_email_read</span>
+            <h2 class="title" style="margin-bottom: 15px;">Verify Your Email</h2>
+            <p class="verify-text">We've sent a link to your email. Verify your account to access all features.</p>
+            <button class="btn btn-white" id="checkStatusBtn">Check Status</button>
+        </div>
+    </div>
+
+    <div class="wave-container">
+        <svg class="wave-svg" viewBox="0 0 1440 120" preserveAspectRatio="none">
+            <path fill="url(#gradient)" d="M0,0 C360,120 720,72 1080,0 L1440,72 L1440,0 Z"></path>
+            <path fill="#F2F2F2" d="M0,0 C360,120 720,72 1080,0 L1440,72 L1440,120 L0,120 Z"></path>
+            <defs>
+                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#C3B6F2" />
+                    <stop offset="100%" stop-color="#8EC5FC" />
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
+
+    <div class="bottom-section">
+        
+        <div id="signup-view-bottom" style="width: 100%; max-width: 400px; display: flex; flex-direction: column; align-items: center;">
+            <div class="divider-row"><span>or connect with</span></div>
+            <button class="btn-google" id="googleBtn">
+                <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google">
+                <span>Continue with Google</span>
+            </button>
+            <p class="login-text">Already have account? <a href="login.html">Login</a></p>
+        </div>
+
+        <div id="verify-view-bottom">
+            <button class="btn-text" id="resendBtn">Resend Email</button>
+            <button class="btn-outline" id="logoutBackBtn" style="margin-top: 15px;">Logout & Back to Login</button>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCQ1JiFwqwS3-mrQ_-DDpdxFa4b7TasBlw",
+            authDomain: "drms-workos.firebaseapp.com",
+            projectId: "drms-workos",
+            storageBucket: "drms-workos.firebasestorage.app",
+            messagingSenderId: "96515490039",
+            appId: "1:96515490039:web:3621d81b99de2174dd13f2"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // UI Elements
+        const msgBox = document.getElementById('msg-box');
+        
+        // Form & Buttons
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const passInput = document.getElementById('password');
+        const confirmInput = document.getElementById('confirm');
+        const signupBtn = document.getElementById('signupBtn');
+        const googleBtn = document.getElementById('googleBtn');
+        
+        // Verification Buttons
+        const checkStatusBtn = document.getElementById('checkStatusBtn');
+        const resendBtn = document.getElementById('resendBtn');
+        const logoutBackBtn = document.getElementById('logoutBackBtn');
+        const verifyLaterBtn = document.getElementById('verifyLaterBtn');
+
+        // Views
+        const signupTop = document.getElementById('signup-view-top');
+        const signupBottom = document.getElementById('signup-view-bottom');
+        const verifyTop = document.getElementById('verify-view-top');
+        const verifyBottom = document.getElementById('verify-view-bottom');
+
+        function showMessage(msg, isError = true) {
+            msgBox.innerText = msg;
+            msgBox.className = isError ? 'msg-error' : 'msg-success';
+            msgBox.style.display = 'block';
+            setTimeout(() => { msgBox.style.display = 'none'; }, 4000); // Hide after 4s
+        }
+
+        function setLoading(btn, isLoading, originalText, isDark = false) {
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = `<div class="spinner ${isDark ? 'dark' : ''}"></div>`;
+            } else {
+                btn.disabled = false;
+                if(btn.id === 'googleBtn'){
+                    btn.innerHTML = `<img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google"><span>${originalText}</span>`;
+                } else {
+                    btn.innerText = originalText;
+                }
+            }
+        }
+
+        // Switch UI to Email Sent mode
+        function showVerifyScreen() {
+            signupTop.style.display = 'none';
+            signupBottom.style.display = 'none';
+            verifyTop.style.display = 'flex';
+            verifyBottom.style.display = 'flex';
+            verifyLaterBtn.style.display = 'block';
+        }
+
+        // ==========================================
+        // 🔥 ROUTING LOGIC HELPER
+        // ==========================================
+        async function checkProfileAndRoute(user) {
+            try {
+                const docRef = doc(db, 'users', user.uid);
+                const snapshot = await getDoc(docRef);
+
+                if (snapshot.exists()) {
+                    const data = snapshot.data();
+                    if (data.role && data.phone) {
+                        window.location.href = "index.html"; // Fully setup
+                    } else {
+                        window.location.href = "verification.html"; // Missing role/phone
+                    }
+                } else {
+                    window.location.href = "verification.html"; // Completely new user
+                }
+            } catch (e) {
+                console.error("Routing error:", e);
+                showMessage("Error checking profile.");
+            }
+        }
+
+        // ==========================================
+        // 🔥 EMAIL SIGNUP
+        // ==========================================
+        signupBtn.addEventListener('click', async () => {
+            const name = nameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passInput.value.trim();
+            const confirm = confirmInput.value.trim();
+
+            if (!name || !email || !password) return showMessage("Fill all fields");
+            if (password !== confirm) return showMessage("Passwords do not match");
+
+            setLoading(signupBtn, true, "Create an account");
+            try {
+                // 1. Create Auth User
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 2. Send Email Verification
+                await sendEmailVerification(user);
+
+                // 3. Save initial Firestore doc (Role omitted deliberately for routing logic)
+                await setDoc(doc(db, 'users', user.uid), {
+                    name: name,
+                    email: email,
+                    uid: user.uid,
+                    createdAt: serverTimestamp()
+                });
+
+                showVerifyScreen();
+            } catch (e) {
+                showMessage(e.message.replace("Firebase: ", ""));
+            } finally {
+                setLoading(signupBtn, false, "Create an account");
+            }
+        });
+
+        // ==========================================
+        // 🔥 GOOGLE LOGIN / SIGNUP
+        // ==========================================
+        googleBtn.addEventListener('click', async () => {
+            setLoading(googleBtn, true, "Continue with Google", true);
+            try {
+                const userCredential = await signInWithPopup(auth, googleProvider);
+                // Google skips email verification usually, so route directly
+                await checkProfileAndRoute(userCredential.user);
+            } catch (e) {
+                showMessage("Google sign-in failed.");
+                setLoading(googleBtn, false, "Continue with Google");
+            }
+        });
+
+        // ==========================================
+        // 🔥 VERIFICATION UI ACTIONS
+        // ==========================================
+        
+        // 1. Check Status
+        checkStatusBtn.addEventListener('click', async () => {
+            setLoading(checkStatusBtn, true, "Check Status");
+            const user = auth.currentUser;
+            if (user) {
+                await user.reload(); // Force refresh from Firebase servers
+                if (user.emailVerified) {
+                    showMessage("Email Verified! Welcome.", false);
+                    await checkProfileAndRoute(user);
+                } else {
+                    showMessage("Not verified yet. Please check your email.");
+                }
+            }
+            setLoading(checkStatusBtn, false, "Check Status");
+        });
+
+        // 2. Resend Email
+        resendBtn.addEventListener('click', async () => {
+            try {
+                if (auth.currentUser) {
+                    await sendEmailVerification(auth.currentUser);
+                    showMessage("Verification email resent!", false);
+                }
+            } catch (e) { showMessage("Error resending email"); }
+        });
+
+        // 3. Logout & Back
+        logoutBackBtn.addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = "login.html";
+        });
+
+        // 4. Verify Later
+        verifyLaterBtn.addEventListener('click', () => {
+            // Routing to index.html will let the main auth listener handle them.
+            // If the main app strictly requires email verification, they will be blocked there.
+            window.location.href = "index.html"; 
+        });
+
+    </script>
+</body>
+</html>

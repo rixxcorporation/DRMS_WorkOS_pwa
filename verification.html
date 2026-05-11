@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ffffff">
+    <title>DRMS workOS - Verify Profile</title>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        :root {
+            --primary-color: #4F46E5;
+            --success-color: #10B981;
+            --bg-light: #F8FAFC;
+            --text-dark: #1E293B;
+            --text-muted: #64748B;
+        }
+
+        body, html {
+            height: 100vh;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Message Box */
+        #msg-box {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: bold;
+            color: white; background: #EF4444; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: none; z-index: 100; text-align: center; width: 90%; max-width: 400px;
+        }
+
+        /* Main Container */
+        .container {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* --- STATE 1: FORM --- */
+        #form-view {
+            display: flex; flex-direction: column; align-items: center; width: 100%;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .icon-circle {
+            background-color: rgba(79, 70, 229, 0.1);
+            padding: 25px;
+            border-radius: 50%;
+            margin-bottom: 30px;
+        }
+        .icon-circle .material-icons-round { font-size: 80px; color: var(--primary-color); }
+
+        .title { font-size: 26px; font-weight: 900; color: var(--text-dark); margin-bottom: 10px; }
+        .subtitle { color: var(--text-muted); font-size: 14px; line-height: 1.5; text-align: center; margin-bottom: 40px; }
+
+        .input-wrapper {
+            width: 100%; background: var(--bg-light); border-radius: 15px;
+            display: flex; align-items: center; padding: 0 20px; height: 60px;
+            border: 2px solid transparent; transition: border 0.2s;
+        }
+        .input-wrapper:focus-within { border: 2px solid var(--primary-color); }
+        .prefix { font-size: 18px; font-weight: 600; color: var(--text-dark); margin-right: 10px; }
+        .input-wrapper input {
+            border: none; background: transparent; outline: none; flex: 1;
+            font-size: 18px; font-weight: 600; letter-spacing: 1px; color: var(--text-dark);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            width: 100%; height: 60px; margin-top: 30px; border: none; border-radius: 15px;
+            background-color: var(--primary-color); color: white; font-size: 18px; font-weight: bold;
+            cursor: pointer; box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
+            display: flex; justify-content: center; align-items: center; transition: transform 0.1s;
+        }
+        .btn-primary:active { transform: scale(0.97); }
+
+        .btn-text {
+            background: none; border: none; color: #94A3B8; font-size: 14px; font-weight: 600;
+            margin-top: 15px; cursor: pointer; padding: 10px;
+        }
+
+        /* --- STATE 2: SUCCESS CARD --- */
+        #success-view {
+            display: none; /* Hidden by default */
+            flex-direction: column; align-items: center; width: 100%;
+            background: white; padding: 30px; border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.15);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            opacity: 0; transform: scale(0.9);
+            animation: popIn 0.5s forwards ease-out;
+        }
+
+        @keyframes popIn {
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .success-icon { font-size: 90px; color: var(--success-color); margin-bottom: 20px; }
+        .success-title { font-size: 22px; font-weight: 900; color: var(--text-dark); margin-bottom: 15px; }
+        .divider { width: 100%; height: 1px; background: #F1F5F9; margin-bottom: 15px; }
+
+        .s-name { font-size: 20px; font-weight: bold; color: var(--primary-color); margin-bottom: 10px; }
+        
+        .badge-row { display: flex; gap: 8px; margin-bottom: 15px; }
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; }
+        .badge-section { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
+        .badge-role { background: rgba(79, 70, 229, 0.1); color: var(--primary-color); }
+        
+        .s-phone { font-size: 14px; color: var(--text-muted); font-weight: 600; margin-bottom: 30px; }
+        .loading-text { font-size: 12px; color: #94A3B8; margin-top: 10px; }
+
+        /* Spinner */
+        .spinner {
+            width: 25px; height: 25px; border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white; border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        .spinner.green { border: 2px solid rgba(16,185,129,0.2); border-top: 2px solid var(--success-color); width: 20px; height: 20px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="msg-box"></div>
+
+    <div class="container">
+        
+        <div id="form-view">
+            <div class="icon-circle">
+                <span class="material-icons-round">admin_panel_settings</span>
+            </div>
+            <h1 class="title">Link Your Profile</h1>
+            <p class="subtitle">Enter your registered mobile number to sync your Section, Role, and Salary data.</p>
+            
+            <div class="input-wrapper">
+                <span class="prefix">+91</span>
+                <input type="tel" id="phone" placeholder="10-Digit Mobile Number" maxlength="10">
+            </div>
+
+            <button class="btn-primary" id="verifyBtn">Verify & Connect</button>
+            <button class="btn-text" id="skipBtn">Skip & continue as basic Staff</button>
+        </div>
+
+        <div id="success-view">
+            <span class="material-icons-round success-icon">check_circle</span>
+            <h2 class="success-title">Profile Linked!</h2>
+            <div class="divider"></div>
+            
+            <div class="s-name" id="s-name">John Doe</div>
+            <div class="badge-row">
+                <div class="badge badge-section" id="s-section">GENERAL</div>
+                <div class="badge badge-role" id="s-role">STAFF</div>
+            </div>
+            <div class="s-phone" id="s-phone">+91 0000000000</div>
+            
+            <div class="spinner green"></div>
+            <div class="loading-text">Preparing your dashboard...</div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCQ1JiFwqwS3-mrQ_-DDpdxFa4b7TasBlw",
+            authDomain: "drms-workos.firebaseapp.com",
+            projectId: "drms-workos",
+            storageBucket: "drms-workos.firebasestorage.app",
+            messagingSenderId: "96515490039",
+            appId: "1:96515490039:web:3621d81b99de2174dd13f2"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+
+        // Ensure user is actually logged in before allowing actions
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+            } else {
+                window.location.href = "login.html"; // Redirect if not authenticated
+            }
+        });
+
+        // UI Elements
+        const msgBox = document.getElementById('msg-box');
+        const phoneInput = document.getElementById('phone');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        
+        const formView = document.getElementById('form-view');
+        const successView = document.getElementById('success-view');
+
+        // Success UI Elements
+        const sName = document.getElementById('s-name');
+        const sSection = document.getElementById('s-section');
+        const sRole = document.getElementById('s-role');
+        const sPhone = document.getElementById('s-phone');
+
+        function showMessage(msg, isError = true) {
+            msgBox.innerText = msg;
+            msgBox.style.backgroundColor = isError ? '#EF4444' : '#10B981';
+            msgBox.style.display = 'block';
+            setTimeout(() => { msgBox.style.display = 'none'; }, 4000);
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                verifyBtn.disabled = true;
+                skipBtn.disabled = true;
+                verifyBtn.innerHTML = '<div class="spinner"></div>';
+            } else {
+                verifyBtn.disabled = false;
+                skipBtn.disabled = false;
+                verifyBtn.innerText = "Verify & Connect";
+            }
+        }
+
+        function showSuccessState(name, section, role, phone) {
+            sName.innerText = name;
+            sSection.innerText = (section || "GENERAL").toUpperCase();
+            sRole.innerText = (role || "STAFF").toUpperCase();
+            sPhone.innerText = phone;
+
+            formView.style.display = 'none';
+            successView.style.display = 'flex';
+
+            // Wait 2.5 seconds, then redirect to Dashboard (index.html)
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 2500);
+        }
+
+        // ==========================================
+        // 🔥 VERIFY & LINK
+        // ==========================================
+        verifyBtn.addEventListener('click', async () => {
+            let phoneVal = phoneInput.value.trim();
+            if (!phoneVal) return;
+            if (!currentUser) return showMessage("Authentication error. Please reload.");
+
+            if (!phoneVal.startsWith('+91')) {
+                phoneVal = '+91' + phoneVal;
+            }
+
+            setLoading(true);
+
+            try {
+                // 1. Check pre_registered_staff
+                const preRegRef = doc(db, 'pre_registered_staff', phoneVal);
+                const preRegDoc = await getDoc(preRegRef);
+
+                if (preRegDoc.exists()) {
+                    const staffData = preRegDoc.data();
+                    const section = staffData.section || 'General';
+
+                    // 2. Update Users Collection
+                    const userRef = doc(db, 'users', currentUser.uid);
+                    await updateDoc(userRef, {
+                        name: staffData.name,
+                        role: staffData.role,
+                        section: section,
+                        salary: staffData.salary,
+                        phone: phoneVal
+                    });
+
+                    // 3. Delete Pre-registered document
+                    await deleteDoc(preRegRef);
+
+                    // 4. Trigger Success Animation & Redirect
+                    showSuccessState(staffData.name, section, staffData.role, phoneVal);
+                } else {
+                    showMessage("Mobile number not found in employee records. Try again.");
+                    setLoading(false);
+                }
+            } catch (error) {
+                console.error("Verification Error:", error);
+                showMessage("Error connecting profile.");
+                setLoading(false);
+            }
+        });
+
+        // ==========================================
+        // 🔥 SKIP & CONTINUE
+        // ==========================================
+        skipBtn.addEventListener('click', async () => {
+            if (!currentUser) return;
+            
+            setLoading(true);
+            let phoneVal = phoneInput.value.trim();
+            if (phoneVal && !phoneVal.startsWith('+91')) {
+                phoneVal = '+91' + phoneVal;
+            }
+
+            try {
+                const userRef = doc(db, 'users', currentUser.uid);
+                await updateDoc(userRef, {
+                    phone: phoneVal || '',
+                    section: 'General',
+                    role: 'Staff' // Default fallback role
+                });
+
+                // Redirect directly without success animation
+                window.location.href = "index.html"; 
+            } catch (error) {
+                console.error("Skip Error:", error);
+                showMessage("Error updating profile.");
+                setLoading(false);
+            }
+        });
+    </script>
+</body>
+</html>
